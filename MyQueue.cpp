@@ -1,87 +1,58 @@
-#include <stack>
-#include <iostream>
-#include <bits/stdc++.h>
-
-using namespace std;
-
 class MyQueue {
-    stack<int> pushStack;
-    stack<int> popStack;
+private:
+    stack<int> inSt;
+    stack<int> outSt;
+    int itemCount;
 
 public:
-    /** Initialize your data structure here. */
-    MyQueue() {}
+    MyQueue() 
+    {
+        itemCount = 0;
+    }
     
-    /** Push element x to the back of queue. */
     void push(int x)
     {
-        pushStack.push(x);   
-    }
-    
-    void flipOver()
-    {
-        if (!popStack.empty()) {
-            return;
+        while (!outSt.empty()) {
+            inSt.push(outSt.top());
+            ++itemCount;
+            outSt.pop();
         }
 
-        while (!pushStack.empty()) {
-            popStack.push(pushStack.top());
-            pushStack.pop();
-        }
+        inSt.push(x);
+        ++itemCount;
     }
     
-    /** Removes the element from in front of queue and returns that element. */
     int pop()
     {
-        if (empty()) {
-            return -1;
-        }
+        peek();
+        int topItem = outSt.top();
+        outSt.pop();
+        --itemCount;
 
-        flipOver();
-        int top = popStack.top();
-        popStack.pop();
-        return top;
+        return topItem;
     }
     
-    /** Get the front element. */
     int peek()
     {
-        if (empty()) {
-            return -1;
+        while (!inSt.empty()) {
+            outSt.push(inSt.top());
+            inSt.pop();
         }
-    
-        flipOver();
-        return popStack.top();
+
+        return outSt.top();
     }
     
-    /** Returns whether the queue is empty. */
-    bool empty()
+    bool empty() 
     {
-        return (pushStack.empty() && popStack.empty());
+        return (itemCount == 0);    
     }
 };
 
-
-int main ()
-{
-    MyQueue q;
-
-    q.push(3);
-    q.push(4);
-    q.push(5);
-    q.push(6);
-   
-    cout << "Front = " << q.peek() << endl; 
-    cout << "Front = " << q.pop() << endl; 
-    q.push(7);
-    cout << "Front = " << q.peek() << endl; 
-    cout << "Empty? " << q.empty() << endl; 
-    q.push(9);
-    cout << "Front = " << q.pop() << endl; 
-    cout << "Front = " << q.pop() << endl; 
-    cout << "Front = " << q.pop() << endl; 
-    cout << "Front = " << q.pop() << endl; 
-    cout << "Front = " << q.pop() << endl; 
-    cout << "Front = " << q.pop() << endl; 
-    cout << "Front = " << q.pop() << endl; 
-}
+/**
+ * Your MyQueue object will be instantiated and called as such:
+ * MyQueue* obj = new MyQueue();
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * int param_3 = obj->peek();
+ * bool param_4 = obj->empty();
+ */
