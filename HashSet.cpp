@@ -1,129 +1,65 @@
-#include <bits/stdc++.h>
-#define BUCKETS 10000
-
-using namespace std;
-
-
 class MyHashSet {
-    
 private:
-    class Node {
-         
-    public:
-        int value;
-        Node *next;
-
-        Node() : value(-1), next(nullptr) {}
-        Node(int value) : value(value),
-                          next (nullptr) {}
-    } *nodes;
+    bool **set;
 
 public:
-    /* Create buckets here. */
     MyHashSet()
     {
-        nodes = new Node[BUCKETS] ();
+        set = new bool*[1000](nullptr);
+    }
+    
+    int hash1(int key)
+    {
+        return key % 1000;
     }
 
-    /* Time complexity : O(1) */
-    int index(int value)
+    int hash2(int key)
     {
-        return value % BUCKETS;
-    }
-    
-    /* Time complexity : O(m) - m being number of colliosions
-     * for a key. 
-     */
-    Node * find(Node *head, int value)
-    {
-        Node *cur = head, *prev = head;
-        while ((cur != nullptr) && (cur->value != value)) {
-            prev = cur;
-            cur = cur->next;
-        }
-        
-        return prev;
+        return key / 1000;
     }
 
-    /* Value is assumed to be always non-negative. 
-     * Time Complexity can be upto O(n) depending on the collsions
-     */
-    void add(int value)
+    void add(int key)
     {
-        int idx = index(value);
-        if (nullptr == nodes[idx].next) {
-            nodes[idx].next = new Node(value);
-            return;
+        int bucket = hash1(key);
+        if (set[bucket] == nullptr) {
+            if (bucket == 0) {
+                set[bucket] = new bool [1001](false);
+            } else {
+                set[bucket] = new bool [1000](false);
+            }
         }
-        
-        Node *prev = find(&nodes[idx], value);
-        if (nullptr == prev->next) {
-            prev->next = new Node(value);
-        } else {
-            prev->next->value = value;
-        }
+
+        int itemIndex = hash2(key);
+        set[bucket][itemIndex] = true;
     }
     
-    /* Returns the value to which the specified key is mapped, 
-     * or -1 if this map contains no mapping for the key.
-     * Value is assumed to be always non-negative. 
-     * Time Complexity can be upto O(n) depending on the collsions
-     */
-    bool contains(int value)
+    void remove(int key) 
     {
-        int idx = index(value);
-        if (nullptr == nodes[idx].next) {
-            return false;
+        int bucket = hash1(key);
+        if (set[bucket] == nullptr) {
+            return;
         }
-        
-        Node *prev = find(&nodes[idx], value);
-        if (nullptr == prev->next) {
-            return false;
-        }
-        
-        return true;
+
+        int itemIndex = hash2(key);
+        set[bucket][itemIndex] = false;
     }
     
-    /* Removes the mapping of the specified value key,
-     * if this map contains a mapping for the key.
-     * Value is assumed to be always non-negative. 
-     * Time Complexity can be upto O(n) depending on the collsions
-     */
-    void remove(int value)
+    bool contains(int key)
     {
-        int idx = index(value);
-        if (nullptr == nodes[idx].next) {
-            return;
+        int bucket = hash1(key);
+        if (set[bucket] == nullptr) {
+            return false;
         }
-        
-        Node *prev = find(&nodes[idx], value);
-        if (nullptr == prev->next) {
-            return;
-        }
-        
-        Node *temp = prev->next;
-        prev->next = prev->next->next;
-        delete temp;
+
+        int itemIndex = hash2(key);
+        return set[bucket][itemIndex];  
     }
 };
 
-int main()
-{
-    MyHashSet m;
-
-    m.remove(3);
-
-    m.add(5);
-    m.add(3);
-    
-    if (!m.contains(8)) {
-        cout << "You need to add it first, dumbass! (<:" << endl;
-    } else {
-        cout << "You have a bug in your code, as always!" << endl;
-    }
-
-    m.remove(5);
-    m.remove(3);
-
-    return 0;
-}
+/**
+ * Your MyHashSet object will be instantiated and called as such:
+ * MyHashSet* obj = new MyHashSet();
+ * obj->add(key);
+ * obj->remove(key);
+ * bool param_3 = obj->contains(key);
+ */
